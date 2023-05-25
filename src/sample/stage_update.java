@@ -8,7 +8,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 
-/*专门用于显示review的框框,该*/
+/* This class is used to display a review window */
 public class stage_update {
     String label;
     String target;
@@ -20,27 +20,28 @@ public class stage_update {
 
     public void show() throws Exception {
         Stage stage = new Stage();
-        TextArea textArea=new TextArea();
-        word_list=new listen_list(target);
-        String s_list=word_list.read_review(target);
+        TextArea textArea = new TextArea();
+        word_list = new listen_list(target);
+        String s_list = word_list.read_review(target);
         textArea.setWrapText(false);
         textArea.appendText(s_list);
-        Button button_save=new Button("Save");
-        button_save.setOnAction((E)->{
-            String new_context=textArea.getText();
+
+        Button buttonSave = new Button("Save");
+        buttonSave.setOnAction((E) -> {
+            String newContext = textArea.getText();
             try (OutputStreamWriter output_t = new OutputStreamWriter(new FileOutputStream(target, false));
                  BufferedWriter output = new BufferedWriter(output_t);) {
-                /*如果是false说明是temporary的文件，需要添加时间*/
-                output.write(new_context);
-        } catch (FileNotFoundException e) {
+                /* If it's false, it means it's a temporary file and needs to add a timestamp */
+                output.write(newContext);
+            } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
-            }});
+            }
+        });
 
-
-        Scene s = new Scene(textArea, 450, 500);
-        stage.setScene(s);
+        Scene scene = new Scene(textArea, 450, 500);
+        stage.setScene(scene);
         stage.setTitle(label);
         stage.show();
     }

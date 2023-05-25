@@ -13,8 +13,12 @@ public class listen_list {
 
     public listen_list(String s) {
         word_list = new HashMap<>();
-        this.filename = s;
-        File file = new File(s);
+
+        String currentPath = System.getProperty("user.dir");
+        this.filename = currentPath + "/src/assets/" + s;
+        
+        File file = new File(this.filename);
+
         if (file.exists()) {
             read_all_word(filename);
         }

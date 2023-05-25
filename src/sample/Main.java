@@ -14,6 +14,10 @@ import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 import java.io.File;
 import java.util.HashMap;
 
@@ -45,12 +49,23 @@ public class Main extends Application {
         TextField textField = new TextField("Please write down your word");
 
         // read text from assets/guide.txt
+        String currentPath = System.getProperty("user.dir");
 
+        String filePath = currentPath + "/src/assets/guide.txt";
 
-        TextArea textArea = new TextArea(
-                "①Choose a kind of pattern and a target.\n②Click Play and you can write down your word in the textfield. \n③Press Enter when you finish a word. \n④Finally you can click Grade to find your accuracy!" +
-                        " \n\nIf you want to input a list for yourself, you can choose the write pattern and click save after you finish your input.\n" +
-                        "You can enter UP to back to last word you input in write pattern!\nGood Luck!");
+        StringBuilder fileContent = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Append each line to the StringBuilder
+                fileContent.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the file: " + e.getMessage());
+        }
+
+        TextArea textArea = new TextArea(fileContent.toString());
         textArea.setPrefHeight(400);
         textArea.setWrapText(true);
 
@@ -131,13 +146,15 @@ public class Main extends Application {
         //初始化
         file_target = (String) comboBoxHZ.getValue() + comboBox.getValue();
         word_list = new listen_list("横向测试" + comboBox.getValue());
-        primaryStage.setTitle("WordTrain4.0");
+        primaryStage.setTitle("Take Word Down 4.0");
         Scene scene = new Scene(pane, 500, 300);
-        Image image = new Image("icon.png");
+        Image image = new Image("assets/icon.png");
         primaryStage.getIcons().add(image);
         primaryStage.setScene(scene);
 
         primaryStage.show();
+
+
 
     /*事件绑定*/
     //模式改变
