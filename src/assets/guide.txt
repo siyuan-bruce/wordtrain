@@ -1,0 +1,3 @@
+"①Choose a kind of pattern and a target.\n②Click Play and you can write down your word in the textfield. \n③Press Enter when you finish a word. \n④Finally you can click Grade to find your accuracy!" +
+                        " \n\nIf you want to input a list for yourself, you can choose the write pattern and click save after you finish your input.\n" +
+                        "You can enter UP to back to last word you input in write pattern!\nGood Luck!"
