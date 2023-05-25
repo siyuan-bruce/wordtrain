@@ -7,11 +7,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-public class listen_list {
+public class listenList {
     HashMap<Integer, String> word_list;
     String filename;
 
-    public listen_list(String s) {
+    public listenList(String s) {
         word_list = new HashMap<>();
 
         String currentPath = System.getProperty("user.dir");
@@ -95,6 +95,7 @@ public class listen_list {
             e.printStackTrace();
         }
     }
+
 
 
     //读取记录

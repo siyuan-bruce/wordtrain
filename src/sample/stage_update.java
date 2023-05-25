@@ -1,6 +1,6 @@
 package sample;
 
-import dataunit.listen_list;
+import dataunit.listenList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -12,7 +12,7 @@ import java.io.*;
 public class stage_update {
     String label;
     String target;
-    listen_list word_list;
+    listenList word_list;
     public stage_update(String label, String target){
         this.label=label;
         this.target=target;
@@ -21,7 +21,7 @@ public class stage_update {
     public void show() throws Exception {
         Stage stage = new Stage();
         TextArea textArea = new TextArea();
-        word_list = new listen_list(target);
+        word_list = new listenList(target);
         String s_list = word_list.read_review(target);
         textArea.setWrapText(false);
         textArea.appendText(s_list);

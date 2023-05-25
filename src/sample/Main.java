@@ -1,6 +1,6 @@
 package sample;
 
-import dataunit.listen_list;
+import dataunit.listenList;
 import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -22,21 +22,21 @@ import java.io.File;
 import java.util.HashMap;
 
 public class Main extends Application {
-    listen_list word_list;
-    HashMap<Integer, String> write_word_list;
-    HashMap<Integer, String> wrong_word_list;
+    listenList wordList;
+    HashMap<Integer, String> writeWordList;
+    HashMap<Integer, String> wrongWordList;
     int pointer = 0;
-    String file_target;
+    String fileTarget;
     Media media;
     MediaPlayer mediaPlayer;
     boolean flag;
 
-    Boolean button_play = true;
-    Boolean textField_click = true;
-    Boolean pause_flag=true;
+    Boolean buttonPlay = true;
+    Boolean textFieldClick = true;
+    Boolean pauseFlag=true;
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
+    public void start(Stage primaryStage){
         GridPane pane = new GridPane();
         HBox hBox = new HBox();
         pane.setHgap(10);
@@ -48,24 +48,9 @@ public class Main extends Application {
 
         TextField textField = new TextField("Please write down your word");
 
-        // read text from assets/guide.txt
-        String currentPath = System.getProperty("user.dir");
+        String guideText = readGuideText();
 
-        String filePath = currentPath + "/src/assets/guide.txt";
-
-        StringBuilder fileContent = new StringBuilder();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Append each line to the StringBuilder
-                fileContent.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            System.err.println("Error reading the file: " + e.getMessage());
-        }
-
-        TextArea textArea = new TextArea(fileContent.toString());
+        TextArea textArea = new TextArea(guideText);
         textArea.setPrefHeight(400);
         textArea.setWrapText(true);
 
@@ -89,7 +74,7 @@ public class Main extends Application {
         pattern.setPrefWidth(100);
         pattern.getSelectionModel().select(1);
 
-        Label label_pattern = new Label("Pattern:");
+        Label label_pattern = new Label("Mode:");
         Label label_target = new Label("Target:");
         label_target.setAlignment(Pos.CENTER);
 
@@ -124,40 +109,37 @@ public class Main extends Application {
 
 
         //Style
-
         pane.setStyle("-fx-background-color: snow");
         textField.setStyle("-fx-font-weight:bold;");
-        textArea.setStyle(" -fx-font-family: Verdana");
+        textArea.setStyle("-fx-font-family: Verdana");
+
+        // set font style to Arial
+        label_word.setStyle("-fx-font-family: Verdana");
+
 
         //添加组件
         pane.add(hBox, 0, 3, 5, 1);
-
         pane.add(label_pattern, 0, 0, 1, 1);
         pane.add(label_target, 2, 0, 1, 1);
         pane.add(comboBoxHZ, 3, 0, 1, 1);
         pane.add(comboBox, 4, 0, 1, 1);
         pane.add(pattern, 1, 0, 1, 1);
         pane.add(textField, 1, 1, 4, 1);
-
-
         pane.add(label_grade, 0, 5, 1, 1);
-
         pane.add(textArea, 1, 5, 4, 3);
+
         //初始化
-        file_target = (String) comboBoxHZ.getValue() + comboBox.getValue();
-        word_list = new listen_list("横向测试" + comboBox.getValue());
+        fileTarget = (String) comboBoxHZ.getValue() + comboBox.getValue();
+        wordList = new listenList("横向测试" + comboBox.getValue());
         primaryStage.setTitle("Take Word Down 4.0");
         Scene scene = new Scene(pane, 500, 300);
         Image image = new Image("assets/icon.png");
         primaryStage.getIcons().add(image);
         primaryStage.setScene(scene);
-
         primaryStage.show();
 
-
-
     /*事件绑定*/
-    //模式改变
+        //模式改变
         pattern.setOnAction((E) -> {
             if (pattern.getValue() == "write") {
                 //添加save按钮
@@ -175,31 +157,21 @@ public class Main extends Application {
         });
 
     //播放按钮点击
-        button.setOnAction((E) -> {
-            if (button_play == true) {
-                button.setStyle("-fx-font-weight: bold");
-                button_play = false;
-            } else {
-                button.setStyle("");
-                button_play = true;
-            }
-            file_target = (String) comboBoxHZ.getValue() + comboBox.getValue();
-            word_list = new listen_list("横向测试" + comboBox.getValue());
+        button.setOnAction(e -> {
+            button.setStyle(buttonPlay ? "-fx-font-weight: bold" : "");
+            buttonPlay = !buttonPlay;
 
-            write_word_list = new HashMap<>();
             String[] index = ((String) comboBox.getValue()).split("-");
-            //System.out.println(index[0]+"/"+comboBoxHZ.getValue() + "/" + index + " Test " + index[1].charAt(1) + "-" + comboBoxHZ.getValue() + ".mp3");
+            String fileTarget = comboBoxHZ.getValue().toString() + comboBox.getValue();
 
-            //初始化路径
-            String url;
+            String url = this.getClass().getResource(
+                    String.format("%s/%s/%s Test %s%s-%s.mp3",
+                            index[0], comboBoxHZ.getValue(), index[1],
+                            index[1].charAt(0), index[1].length() > 1 ? "-" : "", comboBoxHZ.getValue()
+                    )).toExternalForm();
 
-            if (((int) (index[1]).charAt(0)) == 48) {
-                url = this.getClass().getClassLoader().getResource(index[0] + "/" + comboBoxHZ.getValue() + "/" + index[1] + " Test " + index[1].charAt(1) + "-" + comboBoxHZ.getValue() + ".mp3").toExternalForm();
-            } else {
-                url = this.getClass().getClassLoader().getResource(index[0] + "/" + comboBoxHZ.getValue() + "/" + index[1] + " Test " + index[1] + "-" + comboBoxHZ.getValue() + ".mp3").toExternalForm();
-            }
             media = new Media(url);
-            if (flag == true) {
+            if (flag) {
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.play();
                 flag = false;
@@ -208,30 +180,33 @@ public class Main extends Application {
                 mediaPlayer = new MediaPlayer(media);
                 mediaPlayer.play();
             }
+
             pointer = 0;
 
+            wordList = new listenList("横向测试" + comboBox.getValue());
+            writeWordList = new HashMap<>();
         });
 
 
     //Save按钮点击
         button_save.setOnAction((E) -> {
             if (pattern.getValue() == "write") {
-                word_list.write_all_word(file_target);
+                wordList.write_all_word(fileTarget);
             }
         });
 
         //review按钮点击
         button_review.setOnAction((E) -> {
             //读取内容
-            File file = new File("review/" + file_target + "-review_temporary");
+            File file = new File("review/" + fileTarget + "-review_temporary");
             if (file.exists()) {
-                String s_review = word_list.read_review("review/" + file_target + "-review_temporary");
-                word_list.write_review("review/" + file_target + "-review", s_review, true);
+                String s_review = wordList.read_review("review/" + fileTarget + "-review_temporary");
+                wordList.write_review("review/" + fileTarget + "-review", s_review, true);
                 //读取总内容，显示到框框中
                 file.delete();
             }
 
-            if (!new File("review/" + file_target + "-review").exists()) {
+            if (!new File("review/" + fileTarget + "-review").exists()) {
                 stage_warning stage_warning = new stage_warning("You should have your fist train on this target!");
                 try {
                     stage_warning.show();
@@ -240,8 +215,8 @@ public class Main extends Application {
                 }
             } else {
                 //首先读取临时保存的文件，然后增加到总文件内，显示出来
-                String s = word_list.read_review("review/" + file_target + "-review");
-                stage_review stage_review = new stage_review(file_target, s);
+                String s = wordList.read_review("review/" + fileTarget + "-review");
+                stage_review stage_review = new stage_review(fileTarget, s);
                 try {
                     stage_review.show();
                 } catch (Exception e) {
@@ -259,13 +234,13 @@ public class Main extends Application {
         //暂停按钮点击
         button_pause.setOnAction(e->{
             if(mediaPlayer!=null){
-            if(pause_flag==true) {
+            if(pauseFlag==true) {
                 mediaPlayer.pause();
-                pause_flag=false;
+                pauseFlag=false;
                 button_pause.setText("Continue");
-            }else if (pause_flag==false){
+            }else if (pauseFlag==false){
                 mediaPlayer.play();
-                pause_flag=true;
+                pauseFlag=true;
                 button_pause.setText("Pause");
             }
         ;}else {
@@ -290,7 +265,7 @@ public class Main extends Application {
                     }
                 } else {
                     if (pattern.getValue() == "train") {
-                        if (write_word_list.size() > word_list.getsize()) {
+                        if (writeWordList.size() > wordList.getsize()) {
                             stage_warning stage_warning = new stage_warning("The number of words you input have exceeded the limit!");
                             try {
                                 stage_warning.show();
@@ -299,14 +274,14 @@ public class Main extends Application {
                             }
                         } else {
                             if (!textField.getText().equals("")) {
-                                write_word_list.put(new Integer(pointer), textField.getText().trim());
+                                writeWordList.put(new Integer(pointer), textField.getText().trim());
                                 pointer++;
                                 textField.clear();
                             }
                         }
                     } else if (pattern.getValue() == "write") {
                         this_word = textField.getText().trim();
-                        word_list.add_new_word(this_word);
+                        wordList.add_new_word(this_word);
                         textArea.clear();
                         textArea.appendText(this_word);
                         textField.clear();
@@ -314,101 +289,92 @@ public class Main extends Application {
                 }
             } else if (event.getCode() == KeyCode.UP && pattern.getValue() == "write") {
 
-                System.out.println(word_list.get_word(word_list.getsize() - 1));
-                textField.setText(word_list.get_word(word_list.getsize() - 1));
-                word_list.remove_word();
+                System.out.println(wordList.get_word(wordList.getsize() - 1));
+                textField.setText(wordList.get_word(wordList.getsize() - 1));
+                wordList.remove_word();
             }
 
         });
         //textfield点击
         textField.setOnMouseClicked((E) -> {
-            if (textField_click) {
+            if (textFieldClick) {
                 textField.clear();
-                textField_click = false;
+                textFieldClick = false;
             }
         });
 
-        //grade按钮点击
-        button_grade.setOnAction((E) -> {
-            wrong_word_list = new HashMap<>();
+        button_grade.setOnAction(e -> {
+            wrongWordList = new HashMap<>();
             textArea.clear();
-            if (write_word_list == null) {
+            if (writeWordList == null) {
                 stage_warning stage_warning = new stage_warning("You should input a word in the textarea first.");
                 try {
                     stage_warning.show();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                 }
             } else {
-                if (comboBoxHZ.getValue() == "横向测试") {
-                    for (int i = 0; i < write_word_list.size(); i++) {
-                        if (!write_word_list.get(i).equals(word_list.get_word(i))) {
-                            String write_word = write_word_list.get(i);
-                            wrong_word_list.put(i, "Your word:" + write_word);
-                            textArea.appendText("Your word:" + write_word_list.get(i) + "\t" + "Right word:" + word_list.get_word(i) + "\n");
+                if ("横向测试".equals(comboBoxHZ.getValue())) {
+                    for (int i = 0; i < writeWordList.size(); i++) {
+                        String writeWord = writeWordList.get(i);
+                        String correctWord = wordList.get_word(i);
+                        if (!writeWord.equals(correctWord)) {
+                            wrongWordList.put(i, "Your word:" + writeWord);
+                            textArea.appendText("Your word:" + writeWord + "\t" + "Right word:" + correctWord + "\n");
                         }
                     }
-                } else {//纵向测试练习检测
-                    HashMap Z_test=new HashMap();
-                    int yushu = word_list.getsize() % 4;
+                } else {
+                    HashMap<Integer, String> zTest = new HashMap<>();
+                    int wordListSize = wordList.getsize();
+                    int remainder = wordListSize % 4;
                     int count = 0;
-                    int one_length = word_list.getsize() / 4;
-                    for (int j = 0; j < yushu; j++) {
-                        for (int i = 0; i<one_length+1; i++) {
-                            Z_test.put(count,word_list.get_word(j + 4 * i));
+                    int oneLength = wordListSize / 4;
+                    for (int j = 0; j < remainder; j++) {
+                        for (int i = 0; i < oneLength + 1; i++) {
+                            zTest.put(count, wordList.get_word(j + 4 * i));
                             count++;
                         }
                     }
-                    for (int j = yushu; j < 4; j++) {
-                        for (int i = 0; i < one_length ; i++) {
-                            Z_test.put(count,word_list.get_word(j + 4 * i));
+                    for (int j = remainder; j < 4; j++) {
+                        for (int i = 0; i < oneLength; i++) {
+                            zTest.put(count, wordList.get_word(j + 4 * i));
                             count++;
                         }
                     }
-//重新遍历
-                    for (int i = 0; i < write_word_list.size(); i++) {
-                        if (!write_word_list.get(i).equals(Z_test.get(i))) {
-                            String write_word = write_word_list.get(i);
-                            wrong_word_list.put(i, "Your word:" + write_word);
-                            textArea.appendText("Your word:" + write_word_list.get(i) + "\t" + "Right word:" + Z_test.get(i) + "\n");
+                    for (int i = 0; i < writeWordList.size(); i++) {
+                        String writeWord = writeWordList.get(i);
+                        String correctWord = zTest.get(i);
+                        if (!writeWord.equals(correctWord)) {
+                            wrongWordList.put(i, "Your word:" + writeWord);
+                            textArea.appendText("Your word:" + writeWord + "\t" + "Right word:" + correctWord + "\n");
                         }
-
                     }
-
                 }
-//添加准确率
-                textArea.appendText("Accuracy:" + (1 - new Double(wrong_word_list.size()) / new Double(write_word_list.size())));
-
-
+                double accuracy = 1 - ((double) wrongWordList.size() / writeWordList.size());
+                textArea.appendText("Accuracy:" + accuracy);
                 if (mediaPlayer != null) {
-                    word_list.write_review("review/" + file_target + "-review_temporary", textArea.getText(), false);
+                    wordList.write_review("review/" + fileTarget + "-review_temporary", textArea.getText(), false);
                 }
             }
         });
 
-        //HZ模式切换
-        comboBoxHZ.setOnAction((E) -> {
-            if (comboBoxHZ.getValue() == "纵向测试") {
-                comboBox.getItems().removeAll("C3-00", "C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-00", "C4-01", "C4-02", "C4-03", "C4-04", "C5-00", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12", "C11-01", "C11-02", "C11-03", "C11-04");
+        comboBoxHZ.setOnAction(e -> {
+            boolean isVertical = "纵向测试".equals(comboBoxHZ.getValue());
+            boolean hasC1101 = comboBox.getItems().contains("C11-01");
 
-                comboBox.getItems().addAll("C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-01", "C4-02", "C4-03", "C4-04", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12");
-                comboBox.getSelectionModel().select(0);
-            } else {
-                if (comboBoxHZ.getValue() == "横向测试") {
-                    if (!comboBox.getItems().contains("C11-01")) {
-                        comboBox.getItems().removeAll("C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-01", "C4-02", "C4-03", "C4-04", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12");
-                        comboBox.getItems().addAll("C3-00", "C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-00", "C4-01", "C4-02", "C4-03", "C4-04", "C5-00", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12", "C11-01", "C11-02", "C11-03", "C11-04");
-                        comboBox.getSelectionModel().select(0);
-                    }
-                }
+            if (isVertical) {
+                comboBox.getItems().setAll("C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-01", "C4-02", "C4-03", "C4-04", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12");
+            } else if (!hasC1101) {
+                comboBox.getItems().setAll("C3-00", "C3-01", "C3-02", "C3-03", "C3-04", "C3-05", "C3-06", "C3-07", "C3-08", "C3-09", "C4-00", "C4-01", "C4-02", "C4-03", "C4-04", "C5-00", "C5-01", "C5-02", "C5-03", "C5-04", "C5-05", "C5-06", "C5-07", "C5-08", "C5-09", "C5-10", "C5-11", "C5-12", "C11-01", "C11-02", "C11-03", "C11-04");
             }
+            comboBox.getSelectionModel().select(0);
         });
 
         //选择单元
         comboBox.setOnAction((E) -> {
             if (!comboBoxHZ.getValue().equals("")) {
-                file_target = (String) comboBoxHZ.getValue() + comboBox.getValue();
-                word_list = new listen_list("横向测试" + comboBox.getValue());
+                fileTarget = (String) comboBoxHZ.getValue() + comboBox.getValue();
+                wordList = new listenList("横向测试" + comboBox.getValue());
 
             }
         });
@@ -417,6 +383,23 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private String readGuideText() {
+        String currentPath = System.getProperty("user.dir");
+        String filePath = currentPath + "/src/assets/guide.txt";
+        StringBuilder fileContent = new StringBuilder();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                fileContent.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading the file: " + e.getMessage());
+        }
+
+        return fileContent.toString();
     }
 }
 
